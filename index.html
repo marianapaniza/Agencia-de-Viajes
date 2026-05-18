@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agencia/TravelWorld</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>TravelWorld Experience</h1>
+        <p>Sistema especializado en el registro de ventas y control de servicios</p>
+    </header>
+
+    <div class="container">
+        <!-- Sección de Entrada de Datos -->
+        <section class="card">
+            <h2>Nueva Venta</h2>
+            <div id="formVentas">
+                <div class="form-group">
+                    <label for="txtAsesor">Asesor:</label>
+                    <input type="text" id="txtAsesor" placeholder="Nombre del asesor">
+                </div>
+
+            <div class="form-group">
+                    <label for="txtCliente">Cliente:</label>
+                    <input type="text" id="txtCliente" placeholder="Nombre del cliente">
+                </div>
+                <div class="form-group">
+                    <label for="selServicio">Servicio:</label>
+                    <select id="selServicio">
+                        <option value="Tiquetes Aéreos">Tiquetes Aéreos</option>
+                        <option value="Hospedaje">Hospedaje en Hoteles</option>
+                        <option value="Alquiler de Vehículos">Alquiler de Vehículos</option>
+                        <option value="Pasadías Turísticos">Pasadías Turísticos</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="numCosto">Costo $:</label>
+                    <input type="number" id="numCosto">
+                </div>
+                <button onclick="procesarRegistro()">Registrar Transacción</button>
+            </div>
+            </section>
+
+            <section class="card">
+                <h2>Registro de Actividad</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Asesor</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCuerpo">
+                        <!-- Las filas se generarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Sección de Resultados y Métricas -->
+            <section class="summary-grid">
+                <div class="summary-item">
+                    <h3>Total Ventas</h3>
+                    <p id="resumenTotal">$ 0.00</p>
+                </div>
+                <div class="summary-item">
+                    <h3>Servicio más Vendido</h3>
+                    <p id="resumenTopServicio">-</p>
+                </div>
+                <div class="summary-item">
+                <h3>Ventas Realizadas</h3>
+                <p id="resumenConteo">0</p>
+            </div>
+            <div class="summary-item">
+                <h3>Mejor Asesor</h3>
+                <p id="resumenMejorAsesor">-</p>
+            </div>
+            </section>
+
+    </div>
+    <script>
+        let historialVentas = [];
+
+        function procesarRegistro() {
+            const asesor = document.getElementById('txtAsesor').value;
+            const cliente = document.getElementById('txtCliente').value;
+            const servicio = document.getElementById('selServicio').value;
+            const costo = parseFloat(document.getElementById('numCosto').value);
+
+            if (!asesor || !cliente || isNaN(costo)) {
+                // Se recomienda un mensaje en pantalla en lugar de alert
+                console.log("Campos incompletos");
+                return;
+            }
+
+            const nuevaVenta = { asesor, cliente, servicio, costo };
+            historialVentas.push(nuevaVenta);
+
+            actualizarTabla();
+            actualizarEstadisticas();
+            limpiarFormulario();
+        }
+
+        function actualizarTabla() {
+            const tabla = document.getElementById('tablaCuerpo');
+            tabla.innerHTML = historialVentas.map(item => `
+                <tr>
+                    <td>${item.asesor}</td>
+                    <td>${item.cliente}</td>
+                    <td>${item.servicio}</td>
+                    <td>$ ${item.costo.toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function actualizarEstadisticas() {
+            if (historialVentas.length === 0) return;
+
+            let total = 0;
+            let servicios = {};
+            let asesores = {};
+
+            historialVentas.forEach(v => {
+                total += v.costo;
+                servicios[v.servicio] = (servicios[v.servicio] || 0) + 1;
+                asesores[v.asesor] = (asesores[v.asesor] || 0) + v.costo;
+            });
+
+            const topServicio = Object.keys(servicios).reduce((a, b) => servicios[a] > servicios[b] ? a : b);
+            const mejorAsesor = Object.keys(asesores).reduce((a, b) => asesores[a] > asesores[b] ? a : b);
+
+            document.getElementById('resumenTotal').innerText = `$ ${total.toLocaleString()}`;
+            document.getElementById('resumenConteo').innerText = historialVentas.length;
+            document.getElementById('resumenTopServicio').innerText = topServicio;
+            document.getElementById('resumenMejorAsesor').innerText = mejorAsesor;
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('txtCliente').value = "";
+            document.getElementById('numCosto').value = "";
+            document.getElementById('txtAsesor').focus();
+        }
+
+    </script>    
+    <footer>
+        <p> Servicios de Agencia - TravelWorld Experience </p>
+        <p> Todos los derechos reservados.&copy;</p>
+    </footer>
+
+</body>
+</html>
